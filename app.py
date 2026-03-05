@@ -452,88 +452,102 @@ LANG_NAMES = {"Hindi": "हिन्दी", "French": "Français", "Spanish": "
 # ═══════════════════════════════════════════════════════════════════
 
 # ── Logo retrieval cache (loads once, reused across all calls) ────
+# ═══════════════════════════════════════════════════════════════════
+# INSTRUCTIONS:
+# 1. Replace generate_logo() in app.py with this
+# 2. Upload logo_slim_package.pkl to GitHub config/ (2MB - fits fine)
+# 3. Add GDRIVE_IMAGES_URL to Streamlit secrets (instructions below)
+# ═══════════════════════════════════════════════════════════════════
+
 @st.cache_resource
 def load_logo_package():
-    """Load CNN embeddings package. Tries config/ folder first."""
+    """Load slim embeddings package from config/ folder."""
     import pickle, os
-    paths = [
-        'config/logo_slim_package.pkl',
-        'logo_slim_package.pkl',
-    ]
-    for p in paths:
+    for p in ['config/logo_slim_package.pkl', 'logo_slim_package.pkl']:
         if os.path.exists(p):
             with open(p, 'rb') as f:
                 return pickle.load(f)
     return None
 
-
-@st.cache_data
+@st.cache_resource
 def load_logo_images():
-    """Load compressed logo images. Tries config/ folder first."""
-    import os
-    paths = [
-        'config/logo_images_compressed.npz',
-        'logo_images_compressed.npz',
-    ]
-    for p in paths:
+    """Load logo images from Google Drive direct download link."""
+    import requests, os
+    import numpy as np
+    from io import BytesIO
+
+    # Try local first (if somehow uploaded)
+    for p in ['config/logo_images_compressed.npz', 'logo_images_compressed.npz']:
         if os.path.exists(p):
             data = np.load(p)
             return data['images'], data['labels']
+
+    # Load from Google Drive
+    try:
+        gdrive_url = st.secrets.get("GDRIVE_IMAGES_URL", "")
+        if not gdrive_url:
+            return None, None
+
+        # Convert share URL to direct download URL
+        # From: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+        # To:   https://drive.google.com/uc?export=download&id=FILE_ID
+        if "file/d/" in gdrive_url:
+            file_id = gdrive_url.split("file/d/")[1].split("/")[0]
+            direct_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+        else:
+            direct_url = gdrive_url
+
+        with st.spinner("Loading logo dataset..."):
+            resp = requests.get(direct_url, timeout=60)
+            if resp.status_code == 200:
+                data = np.load(BytesIO(resp.content))
+                return data['images'], data['labels']
+    except Exception as e:
+        pass
+
     return None, None
 
-
 def get_top5_logos(personality: str, industry: str):
-    """
-    Use CNN embeddings to find top 5 most relevant logos from dataset.
-    Returns list of (image_array, class_name, similarity_score).
-    """
+    """Find top 5 logos using CNN cosine similarity."""
     from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 
-    pkg    = load_logo_package()
+    pkg = load_logo_package()
     images, img_labels = load_logo_images()
 
     if pkg is None or images is None:
-        return None  # fallback to Pillow
+        return None
 
-    embeddings      = pkg['embeddings']       # (1044, 512)
-    labels          = pkg['labels']           # (1044,)
-    reverse_map     = pkg['reverse_map']
+    embeddings   = pkg['embeddings']
+    labels       = pkg['labels']
+    reverse_map  = pkg['reverse_map']
     selected_classes = pkg['selected_classes']
 
-    # Map personality → query style keywords
-    STYLE_CLASS_HINTS = {
+    STYLE_HINTS = {
         "minimalist": ["OMV", "Nintendo", "Selecta"],
         "vibrant":    ["PacMan", "SpongeBobSquarePants", "DonkeyKong"],
         "luxury":     ["Nelly", "KungFuPandaCrunchers", "OMV"],
         "bold":       ["DonkeyKong", "PacMan", "Nintendo"],
         "elegant":    ["Nelly", "Selecta", "OMV"],
     }
+    hints = STYLE_HINTS.get(personality, selected_classes[:3])
 
-    hints = STYLE_CLASS_HINTS.get(personality, selected_classes[:3])
-
-    # Build query vector = mean of hint class embeddings
     query_vecs = []
     for hint in hints:
         if hint in pkg['label_map']:
-            idx = pkg['label_map'][hint]
+            idx  = pkg['label_map'][hint]
             mask = labels == idx
             if mask.sum() > 0:
                 query_vecs.append(embeddings[mask].mean(axis=0))
 
     if not query_vecs:
-        # fallback: use random class mean
         query_vecs = [embeddings[:50].mean(axis=0)]
 
     query = np.array(query_vecs).mean(axis=0, keepdims=True)
+    sims  = cos_sim(query, embeddings)[0]
 
-    # Cosine similarity against all embeddings
-    sims = cos_sim(query, embeddings)[0]
-
-    # Pick top 5 from different classes for variety
     top_indices  = np.argsort(sims)[::-1]
     seen_classes = set()
     results      = []
-
     for idx in top_indices:
         cls = reverse_map[int(labels[idx])]
         if cls not in seen_classes:
@@ -542,54 +556,47 @@ def get_top5_logos(personality: str, industry: str):
         if len(results) == 5:
             break
 
-    return results
+    return results if results else None
 
 
 def generate_logo(company: str, industry: str, personality: str, palette: list) -> bytes:
-    """
-    Returns best matching logo from CNN dataset as PNG bytes.
-    Falls back to improved Pillow if model files not loaded yet.
-    """
+    """Returns best CNN-matched logo or Pillow fallback."""
     import math
     from PIL import ImageFilter
 
     results = get_top5_logos(personality, industry)
-
     if results:
-        # Return the top match as PNG bytes
-        img_array = results[0][0]  # numpy (128,128,3) float32
+        img_array = results[0][0]
         img_uint8 = (img_array * 255).astype(np.uint8)
         pil_img   = Image.fromarray(img_uint8).resize((512, 512), Image.LANCZOS)
         buf = io.BytesIO()
         pil_img.save(buf, format="PNG")
         return buf.getvalue()
 
-    # ── Pillow fallback (if pkl not uploaded yet) ─────────────────
+    # Pillow fallback
     def h2r(h):
         h = h.lstrip('#')
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
-
     W = H = 512
-    c1 = palette[0] if palette else "#1B3A6B"
-    c2 = palette[1] if len(palette) > 1 else "#C9A84C"
-    c3 = palette[3] if len(palette) > 3 else "#FFFFFF"
+    c1=palette[0] if palette else "#1B3A6B"
+    c2=palette[1] if len(palette)>1 else "#C9A84C"
+    c3=palette[3] if len(palette)>3 else "#FFFFFF"
     r1,g1,b1=h2r(c1); r2,g2,b2=h2r(c2); r3,g3,b3=h2r(c3)
-    img  = Image.new("RGB",(W,H),(r1,g1,b1))
-    draw = ImageDraw.Draw(img)
+    img=Image.new("RGB",(W,H),(r1,g1,b1)); draw=ImageDraw.Draw(img)
     for rad in range(230,0,-4):
         a=(230-rad)/230
         draw.ellipse([W//2-rad,H//2-rad,W//2+rad,H//2+rad],
                      fill=(min(255,int(r1+(255-r1)*a*0.2)),
                            min(255,int(g1+(255-g1)*a*0.2)),
                            min(255,int(b1+(255-b1)*a*0.2))))
-    initials = "".join([w[0].upper() for w in company.split()[:2]]) if company else "AI"
+    initials="".join([w[0].upper() for w in company.split()[:2]]) if company else "AI"
     try:
-        fl = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 120)
-        fs = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 19)
+        fl=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",120)
+        fs=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",19)
     except:
-        fl = fs = ImageFont.load_default()
-    bb = draw.textbbox((0,0),initials,font=fl)
-    tx,ty = W//2-(bb[2]-bb[0])//2, H//2-(bb[3]-bb[1])//2
+        fl=fs=ImageFont.load_default()
+    bb=draw.textbbox((0,0),initials,font=fl)
+    tx,ty=W//2-(bb[2]-bb[0])//2,H//2-(bb[3]-bb[1])//2
     draw.text((tx+4,ty+4),initials,fill=(0,0,0),font=fl)
     draw.text((tx,ty),initials,fill=(r3,g3,b3),font=fl)
     name=company.upper()[:18] if company else "BRANDSPHERE"
