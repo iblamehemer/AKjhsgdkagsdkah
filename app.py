@@ -478,53 +478,28 @@ def load_logo_package():
 
 @st.cache_resource
 def load_logo_images():
-    """Load logo images from Google Drive direct download link."""
-    import requests, os
+    """Load logo images from 3 split files in config/ folder."""
+    import os
     import numpy as np
-    from io import BytesIO
 
-    # Try local first (if somehow uploaded)
-    for p in ['config/logo_images_compressed.npz', 'logo_images_compressed.npz']:
-        if os.path.exists(p):
-            data = np.load(p)
-            return data['images'], data['labels']
+    parts_images = []
+    parts_labels = []
 
-    # Load from Google Drive
-    try:
-        gdrive_url = st.secrets.get("GDRIVE_IMAGES_URL", "")
-        if not gdrive_url:
-            return None, None
+    for i in range(1, 4):
+        for folder in ['config', '.', '']:
+            path = os.path.join(folder, f'logos_part{i}.npz') if folder else f'logos_part{i}.npz'
+            if os.path.exists(path):
+                data = np.load(path)
+                parts_images.append(data['images'])
+                parts_labels.append(data['labels'])
+                break
 
-        # Convert share URL to direct download URL
-        # From: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
-        # To:   https://drive.google.com/uc?export=download&id=FILE_ID
-        if "file/d/" in gdrive_url:
-            file_id = gdrive_url.split("file/d/")[1].split("/")[0]
-        else:
-            file_id = gdrive_url
+    if len(parts_images) == 0:
+        return None, None
 
-        with st.spinner("Loading logo dataset..."):
-            # Handle Google Drive large file confirmation
-            session = requests.Session()
-            url = f"https://drive.google.com/uc?export=download&id={file_id}"
-            resp = session.get(url, timeout=60)
-            # Check for virus scan warning page
-            if b"confirm=" in resp.content:
-                import re as _re
-                token = _re.search(r'confirm=([0-9A-Za-z_]+)', resp.text)
-                if token:
-                    url = f"https://drive.google.com/uc?export=download&confirm={token.group(1)}&id={file_id}"
-                    resp = session.get(url, timeout=60)
-                else:
-                    url = f"https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t"
-                    resp = session.get(url, timeout=60)
-            if resp.status_code == 200 and len(resp.content) > 10000:
-                data = np.load(BytesIO(resp.content))
-                return data['images'], data['labels']
-    except Exception as e:
-        pass
-
-    return None, None
+    images = np.concatenate(parts_images, axis=0)
+    labels = np.concatenate(parts_labels, axis=0)
+    return images, labels
 
 def get_top5_logos(personality: str, industry: str):
     """Find top 5 logos using CNN cosine similarity."""
