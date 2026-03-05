@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrandSphere AI — UI/UX Wireframes</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg: #0C0D0F; --surface: #141518; --surface2: #1C1E22;
+  --border: #2A2C31; --accent: #C9A84C; --accent2: #E8C97A;
+  --teal: #3ECFB2; --red: #E05A5A; --text: #F0EDE8; --muted: #7A7A85;
+  --font-head: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #080909; font-family: var(--font-body); color: var(--text); padding: 40px; }
+
+/* Cover page */
+.cover {
+  width: 1280px; margin: 0 auto 60px;
+  background: linear-gradient(135deg, #0C0D0F 0%, #141518 60%, #0f1015 100%);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 80px; position: relative; overflow: hidden;
+}
+.cover::before {
+  content: ''; position: absolute; top: -100px; right: -100px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 65%);
+}
+.cover-eyebrow { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.3em; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; }
+.cover-title { font-family: var(--font-head); font-size: 4.5rem; font-weight: 300; line-height: 1.05; margin-bottom: 16px; }
+.cover-title em { font-style: italic; color: var(--accent); }
+.cover-sub { font-family: var(--font-body); font-size: 1rem; color: var(--muted); max-width: 500px; line-height: 1.7; margin-bottom: 40px; }
+.cover-meta { display: flex; gap: 40px; }
+.cover-meta-item { }
+.cover-meta-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+.cover-meta-value { font-family: var(--font-head); font-size: 1.1rem; color: var(--text); }
+.badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 30px; }
+.badge { display: inline-block; padding: 4px 12px; border: 1px solid var(--border); border-radius: 20px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+
+/* Screen container */
+.screen-wrapper { width: 1280px; margin: 0 auto 80px; }
+.screen-label { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.screen-title { font-family: var(--font-head); font-size: 2rem; font-weight: 300; color: var(--text); margin-bottom: 6px; }
+.screen-title em { font-style: italic; color: var(--accent); }
+.screen-desc { font-size: 0.88rem; color: var(--muted); margin-bottom: 24px; line-height: 1.6; max-width: 700px; }
+.screen { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+
+/* Nav */
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.nav-logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+.nav-logo span { color: var(--text); font-weight: 300; }
+.nav-tag { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 0.12em; }
+
+/* Tab bar */
+.tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; }
+.tab { padding: 14px 18px; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid transparent; }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Content area */
+.content { padding: 36px 40px; }
+.section-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+.section-title { font-family: var(--font-head); font-size: 1.8rem; font-weight: 300; color: var(--text); margin-bottom: 4px; }
+.section-title em { font-style: italic; color: var(--accent); }
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* Grid helpers */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+
+/* Form elements */
+.form-field { margin-bottom: 18px; }
+.form-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; display: block; }
+.form-input { width: 100%; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 0.88rem; }
+.form-input.placeholder { color: var(--muted); }
+.form-select { width: 100%; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-body); font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; }
+.form-textarea { width: 100%; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-family: var(--font-body); font-size: 0.88rem; height: 80px; display: flex; align-items: flex-start; padding-top: 12px; }
+
+/* Buttons */
+.btn-primary { display: inline-block; padding: 12px 28px; background: var(--accent); color: #0C0D0F; border-radius: 4px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }
+.btn-outline { display: inline-block; padding: 11px 26px; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
+.card-title { font-family: var(--font-head); font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.card-sub { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* Metric card */
+.metric-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; }
+.metric-value { font-family: var(--font-head); font-size: 2.2rem; font-weight: 700; color: var(--accent); display: block; }
+.metric-label { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+
+/* Logo placeholder */
+.logo-box { width: 260px; height: 260px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.logo-icon { width: 80px; height: 80px; background: var(--surface); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 2rem; font-weight: 700; color: var(--accent); }
+.logo-label { font-family: var(--font-mono); font-size: 0.58rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+
+/* Swatch */
+.swatch-row { display: flex; gap: 6px; margin: 12px 0; }
+.swatch { flex: 1; height: 44px; border-radius: 6px; display: flex; align-items: flex-end; padding: 5px; font-family: var(--font-mono); font-size: 0.5rem; color: rgba(255,255,255,0.6); }
+
+/* Tagline card */
+.tagline-card { background: var(--surface2); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 6px 0; font-family: var(--font-head); font-size: 1.1rem; font-style: italic; color: var(--text); }
+
+/* Chart placeholder */
+.chart-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.chart-title { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+.chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 100px; }
+.bar { border-radius: 3px 3px 0 0; flex: 1; }
+
+/* Progress bar */
+.prog-wrap { background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; margin: 6px 0; }
+.prog-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--teal)); }
+
+/* Lang card */
+.lang-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+.lang-name { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+.lang-text { font-family: var(--font-head); font-size: 0.95rem; font-style: italic; color: var(--text); }
+
+/* Pill */
+.pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.08em; }
+.pill-gold { background: rgba(201,168,76,0.15); color: var(--accent); border: 1px solid rgba(201,168,76,0.3); }
+.pill-green { background: rgba(62,207,178,0.15); color: var(--teal); border: 1px solid rgba(62,207,178,0.3); }
+.pill-red { background: rgba(224,90,90,0.15); color: var(--red); border: 1px solid rgba(224,90,90,0.3); }
+
+/* Check item */
+.check-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.check-icon { color: var(--teal); font-size: 0.9rem; }
+.check-text { font-size: 0.85rem; color: var(--text); }
+
+/* GIF placeholder */
+.gif-box { width: 100%; height: 160px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+
+/* Map placeholder */
+.map-box { width: 100%; height: 200px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+
+/* Star */
+.stars { font-size: 1.6rem; letter-spacing: 4px; }
+
+/* Annotation */
+.annotation { display: flex; align-items: flex-start; gap: 8px; margin: 4px 0; }
+.ann-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+.ann-text { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+/* Flow arrows between screens */
+.flow-connector { display: flex; align-items: center; justify-content: center; padding: 16px 0; }
+.flow-line { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ── COVER PAGE ── -->
+<div class="cover">
+  <div class="cover-eyebrow">UI/UX Design Documentation · Wireframes & Interface Specifications</div>
+  <div class="cover-title">BrandSphere <em>AI</em></div>
+  <div class="cover-sub">Complete interface wireframes for all 7 application tabs. Designed for the CRS AI Capstone 2025-26 panel review.</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><div class="cover-meta-label">Project</div><div class="cover-meta-value">Scenario 1 — AI Branding Assistant</div></div>
+    <div class="cover-meta-item"><div class="cover-meta-label">Team</div><div class="cover-meta-value">Aashi · Hemer · Zivantika</div></div>
+    <div class="cover-meta-item"><div class="cover-meta-label">Screens</div><div class="cover-meta-value">7 Tabs · Full Wireframes</div></div>
+  </div>
+  <div class="badge-row">
+    <span class="badge">Tab 1 — Brand Setup</span>
+    <span class="badge">Tab 2 — Logo & Design</span>
+    <span class="badge">Tab 3 — Content Hub</span>
+    <span class="badge">Tab 4 — Campaign Studio</span>
+    <span class="badge">Tab 5 — Aesthetics Engine</span>
+    <span class="badge">Tab 6 — Feedback</span>
+    <span class="badge">Tab 7 — Analytics</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 1 — BRAND SETUP                                   -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 01 of 07</div>
+  <div class="screen-title">Brand <em>Setup</em></div>
+  <div class="screen-desc">Entry point of the application. User inputs company details, industry, brand personality, tone, and target audience. Clicking "Generate Brand Kit" triggers all AI modules simultaneously.</div>
+  <div class="screen">
+    <div class="nav">
+      <div><div class="nav-logo">Brand<span>Sphere</span> AI</div><div class="nav-tag" style="margin-top:2px">Automated Branding Intelligence Platform</div></div>
+      <div class="nav-tag">Scenario 1 &nbsp;|&nbsp; CRS AI Capstone 2025–26</div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active">🏠 Brand Setup</div>
+      <div class="tab">🎨 Logo & Design</div>
+      <div class="tab">✍️ Content Hub</div>
+      <div class="tab">📣 Campaign Studio</div>
+      <div class="tab">🔍 Aesthetics Engine</div>
+      <div class="tab">⭐ Feedback</div>
+      <div class="tab">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Step 01 — Foundation</div>
+      <div class="section-title">Brand <em>Input Form</em></div>
+      <div class="divider"></div>
+      <div class="grid-2">
+        <div>
+          <div class="form-field"><label class="form-label">Company Name</label><div class="form-input placeholder">e.g. NovaTech Solutions</div></div>
+          <div class="form-field"><label class="form-label">Industry</label><div class="form-select">Tech / Software <span style="color:var(--muted)">▾</span></div></div>
+          <div class="form-field"><label class="form-label">Brand Personality</label><div class="form-select">Minimalist <span style="color:var(--muted)">▾</span></div></div>
+          <div class="form-field"><label class="form-label">Target Audience</label><div class="form-input placeholder">e.g. Millennial entrepreneurs aged 25–40</div></div>
+        </div>
+        <div>
+          <div class="form-field"><label class="form-label">Communication Tone</label><div class="form-select">Professional <span style="color:var(--muted)">▾</span></div></div>
+          <div class="form-field"><label class="form-label">Tagline Hint (Optional)</label><div class="form-input placeholder">e.g. Focus on innovation and speed</div></div>
+          <div class="form-field"><label class="form-label">Product / Service Description</label><div class="form-textarea">Describe what your business does...</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="margin-bottom:28px"><div class="btn-primary">🚀 Generate Brand Kit</div></div>
+      <div class="section-label">Current Brand Profile</div>
+      <div class="grid-4">
+        <div class="metric-card"><span class="metric-label">Company</span><span style="font-family:var(--font-head);font-size:1rem;color:var(--text);display:block;margin-top:6px">NovaTech</span></div>
+        <div class="metric-card"><span class="metric-label">Industry</span><span style="font-family:var(--font-head);font-size:1rem;color:var(--text);display:block;margin-top:6px">Tech/Software</span></div>
+        <div class="metric-card"><span class="metric-label">Personality</span><span style="font-family:var(--font-head);font-size:1rem;color:var(--text);display:block;margin-top:6px">Minimalist</span></div>
+        <div class="metric-card"><span class="metric-label">Tone</span><span style="font-family:var(--font-head);font-size:1rem;color:var(--text);display:block;margin-top:6px">Professional</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">6 input fields</strong> — company, industry, personality, audience, tone, tagline hint</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Generate Brand Kit button</strong> — triggers CNN logo, palette, KPI models simultaneously</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Profile cards</strong> — live preview of current brand configuration</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 2 — LOGO & DESIGN                                 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 02 of 07</div>
+  <div class="screen-title">Logo & <em>Design Studio</em></div>
+  <div class="screen-desc">Displays the CNN-retrieved logo alongside brand color palette and font recommendations. Users can regenerate the logo or download it as PNG for the campaign kit.</div>
+  <div class="screen">
+    <div class="nav"><div><div class="nav-logo">Brand<span>Sphere</span> AI</div></div><div class="nav-tag">CRS AI Capstone 2025–26</div></div>
+    <div class="tab-bar">
+      <div class="tab">🏠 Brand Setup</div><div class="tab active">🎨 Logo & Design</div>
+      <div class="tab">✍️ Content Hub</div><div class="tab">📣 Campaign Studio</div>
+      <div class="tab">🔍 Aesthetics Engine</div><div class="tab">⭐ Feedback</div><div class="tab">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Module 01 — Visual Identity</div>
+      <div class="section-title">Logo & <em>Design Studio</em></div>
+      <div class="divider"></div>
+      <div class="grid-2">
+        <div>
+          <div class="section-label" style="margin-bottom:12px">Generated Logo</div>
+          <div class="logo-box">
+            <div class="logo-icon">NT</div>
+            <div class="logo-label">CNN Retrieved · Top Match</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <div class="btn-primary" style="font-size:0.62rem">🔄 Regenerate Logo</div>
+            <div class="btn-outline" style="font-size:0.62rem">⬇ Download PNG</div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label" style="margin-bottom:10px">Color Palette</div>
+          <div class="swatch-row">
+            <div class="swatch" style="background:#1B3A6B">#1B3A6B</div>
+            <div class="swatch" style="background:#2E86AB">#2E86AB</div>
+            <div class="swatch" style="background:#E8F4FD;color:rgba(0,0,0,0.4)">#E8F4FD</div>
+            <div class="swatch" style="background:#F4A261">#F4A261</div>
+            <div class="swatch" style="background:#2D6A4F">#2D6A4F</div>
+          </div>
+          <div style="margin-top:6px">
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)"><div style="width:24px;height:24px;background:#1B3A6B;border-radius:4px"></div><div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent)">Primary</div><div style="font-size:0.75rem;color:var(--muted)">Trust & Authority</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)"><div style="width:24px;height:24px;background:#2E86AB;border-radius:4px"></div><div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent)">Secondary</div><div style="font-size:0.75rem;color:var(--muted)">Innovation & Clarity</div></div></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0"><div style="width:24px;height:24px;background:#F4A261;border-radius:4px"></div><div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--accent)">Accent</div><div style="font-size:0.75rem;color:var(--muted)">Energy & Warmth</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Font Recommendations</div>
+      <div class="grid-3" style="margin-top:12px">
+        <div class="card"><div style="font-family:var(--font-mono);font-size:0.56rem;color:var(--accent);margin-bottom:6px">#1 PRIMARY</div><div class="card-title">Helvetica Neue</div><div class="card-sub">Sans-serif<br>Clean, universal trust</div><span class="pill pill-gold" style="margin-top:8px;display:inline-block">Minimalist</span></div>
+        <div class="card"><div style="font-family:var(--font-mono);font-size:0.56rem;color:var(--accent);margin-bottom:6px">#2 SECONDARY</div><div class="card-title">Futura</div><div class="card-sub">Geometric Sans<br>Forward-thinking, precise</div><span class="pill pill-gold" style="margin-top:8px;display:inline-block">Minimalist</span></div>
+        <div class="card"><div style="font-family:var(--font-mono);font-size:0.56rem;color:var(--accent);margin-bottom:6px">#3 ACCENT</div><div class="card-title">Gill Sans</div><div class="card-sub">Humanist Sans<br>Approachable yet modern</div><span class="pill pill-gold" style="margin-top:8px;display:inline-block">Minimalist</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">CNN-powered retrieval</strong> — top matching logo from 1044-image dataset via cosine similarity</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">KMeans color palette</strong> — 5 dominant colors with psychological labels</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">KNN font recommendations</strong> — 3 fonts mapped to brand personality</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 3 — CONTENT HUB                                   -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 03 of 07</div>
+  <div class="screen-title">Creative Content <em>& GenAI Hub</em></div>
+  <div class="screen-desc">Gemini API powers tagline generation, brand story writing, multilingual translations, and animated GIF creation. All outputs are downloadable.</div>
+  <div class="screen">
+    <div class="nav"><div><div class="nav-logo">Brand<span>Sphere</span> AI</div></div><div class="nav-tag">CRS AI Capstone 2025–26</div></div>
+    <div class="tab-bar">
+      <div class="tab">🏠 Brand Setup</div><div class="tab">🎨 Logo & Design</div>
+      <div class="tab active">✍️ Content Hub</div><div class="tab">📣 Campaign Studio</div>
+      <div class="tab">🔍 Aesthetics Engine</div><div class="tab">⭐ Feedback</div><div class="tab">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Module 02 — Generative AI</div>
+      <div class="section-title">Creative Content <em>& GenAI Hub</em></div>
+      <div class="divider"></div>
+      <div class="grid-2">
+        <div>
+          <div class="section-label" style="margin-bottom:10px">Tagline Generator</div>
+          <div class="btn-primary" style="margin-bottom:14px;display:inline-block">✨ Generate Taglines (AI)</div>
+          <div class="tagline-card">"Less noise. More signal."</div>
+          <div class="tagline-card">"Built for clarity."</div>
+          <div class="tagline-card">"Simplicity is the strategy."</div>
+          <div class="tagline-card">"Precision in every detail."</div>
+          <div class="tagline-card">"Where less becomes more."</div>
+        </div>
+        <div>
+          <div class="section-label" style="margin-bottom:10px">Brand Narrative</div>
+          <div class="btn-primary" style="margin-bottom:14px;display:inline-block">📖 Generate Brand Story</div>
+          <div class="card">
+            <div class="section-label">Brand Narrative</div>
+            <div style="font-family:var(--font-head);font-size:0.95rem;font-style:italic;color:var(--text);line-height:1.8;margin-top:8px">NovaTech was built with one conviction: that great brands don't happen by accident — they are engineered with intention. In the crowded tech landscape, standing out requires more than a logo...</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-bottom:10px">Multilingual Brand Translation</div>
+      <div class="btn-primary" style="margin-bottom:14px;display:inline-block">🌍 Translate to 5 Languages</div>
+      <div class="grid-3" style="grid-template-columns:repeat(5,1fr);gap:10px">
+        <div class="lang-card"><div class="lang-name">Hindi (हिन्दी)</div><div class="lang-text">स्पष्टता के लिए निर्मित</div></div>
+        <div class="lang-card"><div class="lang-name">French (Français)</div><div class="lang-text">Construit pour la clarté</div></div>
+        <div class="lang-card"><div class="lang-name">Spanish (Español)</div><div class="lang-text">Construido para la claridad</div></div>
+        <div class="lang-card"><div class="lang-name">Arabic (العربية)</div><div class="lang-text">مبني من أجل الوضوح</div></div>
+        <div class="lang-card"><div class="lang-name">Mandarin (普通话)</div><div class="lang-text">为清晰而生</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-bottom:10px">Animated Brand GIF</div>
+      <div class="btn-primary" style="margin-bottom:14px;display:inline-block">🎬 Create Animated Brand GIF</div>
+      <div class="gif-box"><div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--accent);letter-spacing:0.12em">▶ ANIMATED GIF PREVIEW</div><div style="font-size:0.78rem;color:var(--muted);margin-top:4px">24 frames · 600×340px · Logo + Tagline animation</div></div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Gemini 2.0 Flash</strong> — generates 5 taglines, brand story, and 5-language translations</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Animated GIF</strong> — 24-frame Pillow animation with typewriter effect and slide-in logo</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 4 — CAMPAIGN STUDIO                               -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 04 of 07</div>
+  <div class="screen-title">Smart Social & <em>Campaign Studio</em></div>
+  <div class="screen-desc">Predicts campaign KPIs (CTR, ROI, Engagement) using trained Random Forest model. Generates platform-specific captions, hashtags, and regional strategy via Gemini API.</div>
+  <div class="screen">
+    <div class="nav"><div><div class="nav-logo">Brand<span>Sphere</span> AI</div></div><div class="nav-tag">CRS AI Capstone 2025–26</div></div>
+    <div class="tab-bar">
+      <div class="tab">🏠 Brand Setup</div><div class="tab">🎨 Logo & Design</div>
+      <div class="tab">✍️ Content Hub</div><div class="tab active">📣 Campaign Studio</div>
+      <div class="tab">🔍 Aesthetics Engine</div><div class="tab">⭐ Feedback</div><div class="tab">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Module 03 — Campaign Intelligence</div>
+      <div class="section-title">Smart Social & <em>Campaign Studio</em></div>
+      <div class="divider"></div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="form-field"><label class="form-label">Social Platform</label><div class="form-select">Instagram <span style="color:var(--muted)">▾</span></div></div>
+        <div class="form-field"><label class="form-label">Target Region</label><div class="form-select">Asia Pacific <span style="color:var(--muted)">▾</span></div></div>
+        <div class="form-field"><label class="form-label">Campaign Objective</label><div class="form-select">Engagement <span style="color:var(--muted)">▾</span></div></div>
+      </div>
+      <div class="btn-primary" style="margin-bottom:24px;display:inline-block">🚀 Generate Campaign + Predict KPIs</div>
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="metric-card"><span class="metric-value">3.8%</span><span class="metric-label">Click-Through Rate</span></div>
+        <div class="metric-card"><span class="metric-value">245%</span><span class="metric-label">Return on Investment</span></div>
+        <div class="metric-card"><span class="metric-value">72/100</span><span class="metric-label">Engagement Score</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <div class="chart-title">Predicted KPIs vs Industry Average</div>
+          <div class="chart-bars">
+            <div class="bar" style="height:70%;background:var(--accent)"></div>
+            <div class="bar" style="height:40%;background:var(--surface)"></div>
+            <div class="bar" style="height:85%;background:var(--teal)"></div>
+            <div class="bar" style="height:50%;background:var(--surface)"></div>
+            <div class="bar" style="height:55%;background:var(--red)"></div>
+            <div class="bar" style="height:35%;background:var(--surface)"></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px"><span class="pill pill-gold">Predicted</span><span style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);align-self:center">vs Industry Avg</span></div>
+        </div>
+        <div class="map-box">
+          <div style="text-align:center"><div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--accent);letter-spacing:0.12em">🌍 REGIONAL ENGAGEMENT MAP</div><div style="font-size:0.75rem;color:var(--muted);margin-top:6px">Choropleth — Plotly</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Random Forest model</strong> — trained on marketing dataset to predict CTR, ROI, engagement</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Choropleth map</strong> — Plotly regional engagement visualization</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">ZIP download</strong> — all assets bundled for campaign use</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 5 — AESTHETICS ENGINE                             -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 05 of 07</div>
+  <div class="screen-title">Brand <em>Aesthetics Engine</em></div>
+  <div class="screen-desc">Scores brand cohesion across 4 dimensions: Color Harmony, Font-Tone Alignment, Slogan Fit, and Visual Identity. AI generates actionable improvement recommendations.</div>
+  <div class="screen">
+    <div class="nav"><div><div class="nav-logo">Brand<span>Sphere</span> AI</div></div><div class="nav-tag">CRS AI Capstone 2025–26</div></div>
+    <div class="tab-bar">
+      <div class="tab">🏠 Brand Setup</div><div class="tab">🎨 Logo & Design</div>
+      <div class="tab">✍️ Content Hub</div><div class="tab">📣 Campaign Studio</div>
+      <div class="tab active">🔍 Aesthetics Engine</div><div class="tab">⭐ Feedback</div><div class="tab">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Module 04 — Brand Integrity</div>
+      <div class="section-title">Brand <em>Aesthetics Engine</em></div>
+      <div class="divider"></div>
+      <div class="btn-primary" style="margin-bottom:24px;display:inline-block">🔍 Run Aesthetics Analysis</div>
+      <div class="grid-2">
+        <div>
+          <div class="metric-card" style="margin-bottom:20px">
+            <span class="metric-value">88</span>
+            <span class="metric-label">Overall Brand Cohesion Score</span>
+            <div style="margin-top:10px"><span class="pill pill-green">Excellent</span></div>
+          </div>
+          <div class="divider"></div>
+          <div style="margin:10px 0"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">COLOR HARMONY</span><span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--teal);font-weight:700">92/100</span></div><div class="prog-wrap"><div class="prog-bar" style="width:92%"></div></div></div>
+          <div style="margin:10px 0"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">FONT-TONE ALIGNMENT</span><span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--teal);font-weight:700">85/100</span></div><div class="prog-wrap"><div class="prog-bar" style="width:85%"></div></div></div>
+          <div style="margin:10px 0"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">SLOGAN FIT</span><span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--accent);font-weight:700">87/100</span></div><div class="prog-wrap"><div class="prog-bar" style="width:87%"></div></div></div>
+          <div style="margin:10px 0"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">VISUAL IDENTITY</span><span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--teal);font-weight:700">90/100</span></div><div class="prog-wrap"><div class="prog-bar" style="width:90%"></div></div></div>
+        </div>
+        <div>
+          <div class="section-label" style="margin-bottom:12px">AI Recommendations</div>
+          <div class="card" style="margin-bottom:10px"><div style="font-size:0.85rem;color:var(--text);line-height:1.6"><strong style="color:var(--accent)">1.</strong> Enhance color contrast ratio — primary-to-background is below WCAG AA. Darken primary by 15% for better accessibility.</div></div>
+          <div class="card" style="margin-bottom:10px"><div style="font-size:0.85rem;color:var(--text);line-height:1.6"><strong style="color:var(--accent)">2.</strong> Tighten tagline tone — add a power verb to amplify perceived brand confidence for the minimalist personality.</div></div>
+          <div class="card"><div style="font-size:0.85rem;color:var(--text);line-height:1.6"><strong style="color:var(--accent)">3.</strong> Unify font weight hierarchy — ensure headings differ by at least 2 weight steps for clear visual hierarchy.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">4-dimension scoring</strong> — color harmony, font alignment, slogan fit, visual identity</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">AI recommendations</strong> — Gemini generates 3 specific improvement actions</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 6 — FEEDBACK                                      -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 06 of 07</div>
+  <div class="screen-title">Rate & <em>Refine</em></div>
+  <div class="screen-desc">Users rate each module on a 1-5 star scale with optional text comments. Feedback is logged in session state and visualized in the Analytics tab.</div>
+  <div class="screen">
+    <div class="nav"><div><div class="nav-logo">Brand<span>Sphere</span> AI</div></div><div class="nav-tag">CRS AI Capstone 2025–26</div></div>
+    <div class="tab-bar">
+      <div class="tab">🏠 Brand Setup</div><div class="tab">🎨 Logo & Design</div>
+      <div class="tab">✍️ Content Hub</div><div class="tab">📣 Campaign Studio</div>
+      <div class="tab">🔍 Aesthetics Engine</div><div class="tab active">⭐ Feedback</div><div class="tab">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Module 05 — Feedback Intelligence</div>
+      <div class="section-title">Rate & <em>Refine</em></div>
+      <div class="divider"></div>
+      <div class="form-field"><label class="form-label">Select Module to Rate</label><div class="form-select">Logo & Design Studio <span style="color:var(--muted)">▾</span></div></div>
+      <div class="grid-2" style="margin-top:16px">
+        <div>
+          <div class="section-label" style="margin-bottom:10px">Star Rating</div>
+          <div class="stars">⭐⭐⭐⭐☆</div>
+          <div style="margin-top:10px"><span class="pill pill-green">Good</span></div>
+          <div style="margin-top:12px;font-family:var(--font-mono);font-size:0.62rem;color:var(--muted)">RATING — 1–5 SCALE</div>
+          <div style="background:var(--surface2);border-radius:6px;height:8px;margin-top:8px;position:relative"><div style="width:80%;height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:6px"></div></div>
+        </div>
+        <div>
+          <div class="form-field"><label class="form-label">Your Feedback</label><div class="form-textarea">Great logo output, the CNN retrieval is impressive...</div></div>
+          <div class="form-field"><label class="form-label">Preferred Alternative (Optional)</label><div class="form-input placeholder">e.g. More vibrant colors, shorter tagline...</div></div>
+        </div>
+      </div>
+      <div style="margin-top:16px"><div class="btn-primary">📤 Submit Feedback</div></div>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-bottom:12px">Feedback Log This Session</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:1.5fr 1.8fr 0.6fr 0.8fr 2fr;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface)">
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">TIME</span>
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">MODULE</span>
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">RATING</span>
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">SENTIMENT</span>
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">COMMENT</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.5fr 1.8fr 0.6fr 0.8fr 2fr;padding:10px 16px;border-bottom:1px solid var(--border)">
+          <span style="font-size:0.78rem;color:var(--muted)">2026-03-06</span>
+          <span style="font-size:0.78rem;color:var(--text)">Logo & Design</span>
+          <span style="font-size:0.78rem;color:var(--accent)">4</span>
+          <span><span class="pill pill-green">positive</span></span>
+          <span style="font-size:0.78rem;color:var(--muted)">Great logo!</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.5fr 1.8fr 0.6fr 0.8fr 2fr;padding:10px 16px">
+          <span style="font-size:0.78rem;color:var(--muted)">2026-03-06</span>
+          <span style="font-size:0.78rem;color:var(--text)">Campaign Studio</span>
+          <span style="font-size:0.78rem;color:var(--accent)">5</span>
+          <span><span class="pill pill-green">positive</span></span>
+          <span style="font-size:0.78rem;color:var(--muted)">KPIs very accurate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">1-5 star slider</strong> — rates any of the 4 modules</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">Session feedback log</strong> — tabular view with sentiment classification</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB 7 — ANALYTICS                                     -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div class="screen-wrapper">
+  <div class="screen-label">Screen 07 of 07</div>
+  <div class="screen-title">Analytics & <em>Insights</em></div>
+  <div class="screen-desc">Full analytics dashboard: feedback sentiment charts, platform KPI bubble chart, brand personality radar, and PRD evidence checklist tracking completion across all 9 tasks.</div>
+  <div class="screen">
+    <div class="nav"><div><div class="nav-logo">Brand<span>Sphere</span> AI</div></div><div class="nav-tag">CRS AI Capstone 2025–26</div></div>
+    <div class="tab-bar">
+      <div class="tab">🏠 Brand Setup</div><div class="tab">🎨 Logo & Design</div>
+      <div class="tab">✍️ Content Hub</div><div class="tab">📣 Campaign Studio</div>
+      <div class="tab">🔍 Aesthetics Engine</div><div class="tab">⭐ Feedback</div>
+      <div class="tab active">📊 Analytics</div>
+    </div>
+    <div class="content">
+      <div class="section-label">Dashboard</div>
+      <div class="section-title">Analytics & <em>Insights</em></div>
+      <div class="divider"></div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="chart-box">
+          <div class="chart-title">Ratings by Module</div>
+          <div class="chart-bars" style="height:90px">
+            <div class="bar" style="height:80%;background:var(--teal)"></div>
+            <div class="bar" style="height:90%;background:var(--accent)"></div>
+            <div class="bar" style="height:65%;background:var(--teal)"></div>
+            <div class="bar" style="height:85%;background:var(--accent)"></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px;font-family:var(--font-mono);font-size:0.52rem;color:var(--muted)">
+            <span style="flex:1">Logo</span><span style="flex:1">Content</span><span style="flex:1">Campaign</span><span style="flex:1">Aesthetics</span>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Sentiment Distribution</div>
+          <div style="display:flex;align-items:center;justify-content:center;height:90px;gap:16px">
+            <div style="text-align:center"><div style="width:50px;height:50px;border-radius:50%;background:var(--teal);margin:0 auto"></div><div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);margin-top:4px">Positive<br>68%</div></div>
+            <div style="text-align:center"><div style="width:35px;height:35px;border-radius:50%;background:var(--accent);margin:0 auto"></div><div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);margin-top:4px">Neutral<br>22%</div></div>
+            <div style="text-align:center"><div style="width:22px;height:22px;border-radius:50%;background:var(--red);margin:0 auto"></div><div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);margin-top:4px">Negative<br>10%</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="chart-box">
+          <div class="chart-title">Platform KPI Bubble Chart</div>
+          <div style="height:100px;display:flex;align-items:center;justify-content:center;gap:24px">
+            <div style="text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:rgba(201,168,76,0.4);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-mono);font-size:0.55rem;color:var(--accent)">IG</div><div style="font-size:0.6rem;color:var(--muted);margin-top:4px">Instagram</div></div>
+            <div style="text-align:center"><div style="width:40px;height:40px;border-radius:50%;background:rgba(62,207,178,0.3);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-mono);font-size:0.55rem;color:var(--teal)">FB</div><div style="font-size:0.6rem;color:var(--muted);margin-top:4px">Facebook</div></div>
+            <div style="text-align:center"><div style="width:44px;height:44px;border-radius:50%;background:rgba(224,90,90,0.3);border:2px solid var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto;font-family:var(--font-mono);font-size:0.55rem;color:var(--red)">TW</div><div style="font-size:0.6rem;color:var(--muted);margin-top:4px">Twitter/X</div></div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Brand Personality Radar</div>
+          <div style="height:100px;display:flex;align-items:center;justify-content:center;position:relative">
+            <div style="width:90px;height:90px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+              <div style="width:65px;height:65px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center">
+                <div style="width:40px;height:40px;border-radius:50%;background:rgba(201,168,76,0.2);border:1px solid var(--accent)"></div>
+              </div>
+            </div>
+            <div style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.5rem;color:var(--muted)">Trust</div>
+            <div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.5rem;color:var(--muted)">Energy</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-bottom:10px">PRD Evidence Checklist</div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">PROGRESS — 7/9 TASKS COMPLETE</span><span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--accent)">78%</span></div>
+        <div class="prog-wrap" style="height:12px"><div class="prog-bar" style="width:78%"></div></div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">Logo Generated</span></div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">Color Palette Extracted</span></div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">Taglines Created</span></div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">Brand Story Written</span></div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">Multilingual Translations</span></div>
+        </div>
+        <div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">Campaign Content Generated</span></div>
+          <div class="check-item"><span class="check-icon">✓</span><span class="check-text">KPI Predictions Made</span></div>
+          <div class="check-item"><span style="color:var(--muted)">○</span><span class="check-text" style="color:var(--muted)">Feedback Submitted</span></div>
+          <div class="check-item"><span style="color:var(--muted)">○</span><span class="check-text" style="color:var(--muted)">Aesthetics Scored</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:16px;flex-wrap:wrap">
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">4 Plotly charts</strong> — ratings, sentiment, bubble, radar</div></div>
+    <div class="annotation"><div class="ann-dot"></div><div class="ann-text"><strong style="color:var(--text)">PRD checklist</strong> — live progress tracking across all 9 deliverables</div></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="width:1280px;margin:0 auto;padding:40px 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+  <div><div style="font-family:var(--font-head);font-size:1.2rem;color:var(--accent)">BrandSphere AI</div><div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-top:2px">UI/UX Wireframes — CRS AI Capstone 2025-26</div></div>
+  <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">Aashi Dimple Soni · Hemer Manish Pandya · Zivantika Amit Singh</div>
+  <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)">7 Screens · Figma-style Wireframes</div>
+</div>
+
+</body>
+</html>
