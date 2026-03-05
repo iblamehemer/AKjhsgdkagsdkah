@@ -443,69 +443,121 @@ LANG_NAMES = {"Hindi": "हिन्दी", "French": "Français", "Spanish": "
 #  LOGO GENERATOR  (Pillow-based programmatic logo)
 # ─────────────────────────────────────────────────────────────────────────────
 def generate_logo(company: str, industry: str, personality: str, palette: list) -> bytes:
-    W, H = 500, 500
-    img = Image.new("RGB", (W, H), palette[0] if palette else "#1B3A6B")
-    draw = ImageDraw.Draw(img)
+    """Generate AI logo via Pollinations.ai (free, no API key needed). Falls back to improved Pillow."""
+    import urllib.parse, math
+    from PIL import ImageFilter
+
+    STYLE_PROMPTS = {
+        "minimalist": "clean minimalist flat vector logo, white background, simple geometric shapes, monochrome, Swiss design, negative space",
+        "vibrant":    "vibrant colorful modern logo, bold colors, dynamic energy, gradient, youthful playful design",
+        "luxury":     "luxury premium logo, gold foil details, elegant dark background, high-end brand identity, opulent",
+        "bold":       "bold powerful logo design, thick lines, high contrast black and white, impactful strong graphic",
+        "elegant":    "elegant sophisticated logo, delicate serif, soft muted colors, refined aesthetic, premium fashion",
+    }
+    style  = STYLE_PROMPTS.get(personality, STYLE_PROMPTS["minimalist"])
+    pcolor = palette[0].lstrip('#') if palette else "1B3A6B"
+    prompt = (
+        f"professional iconic logo symbol for {company} {industry} brand, "
+        f"{style}, primary color #{pcolor}, vector art, clean sharp edges, "
+        f"centered composition, award winning logo design, no text no letters no words"
+    )
+    neg = "text, watermark, blurry, low quality, ugly, distorted, letters, words, signature"
+    url = (
+        "https://image.pollinations.ai/prompt/"
+        + urllib.parse.quote(prompt)
+        + "?width=512&height=512&seed=42&model=flux&nologo=true&negative="
+        + urllib.parse.quote(neg)
+    )
+    try:
+        import requests as _req
+        resp = _req.get(url, timeout=35)
+        if resp.status_code == 200 and len(resp.content) > 5000:
+            return resp.content
+    except Exception:
+        pass
+
+    # ── Improved Pillow fallback ──────────────────────────────────────────────
+    def h2r(h):
+        h = h.lstrip('#')
+        return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+    W = H = 512
     c1 = palette[0] if len(palette) > 0 else "#1B3A6B"
     c2 = palette[1] if len(palette) > 1 else "#C9A84C"
     c3 = palette[3] if len(palette) > 3 else "#FFFFFF"
+    r1, g1, b1 = h2r(c1)
+    r2, g2, b2 = h2r(c2)
+    r3, g3, b3 = h2r(c3)
 
-    # Background gradient simulation
-    for y in range(H):
-        alpha = y / H
-        r1, g1, b1 = int(c1.lstrip('#')[0:2], 16), int(c1.lstrip('#')[2:4], 16), int(c1.lstrip('#')[4:6], 16)
-        r2, g2, b2 = max(0, r1 - 30), max(0, g1 - 30), max(0, b1 - 30)
-        r = int(r1 * (1 - alpha) + r2 * alpha)
-        g = int(g1 * (1 - alpha) + g2 * alpha)
-        b = int(b1 * (1 - alpha) + b2 * alpha)
-        draw.line([(0, y), (W, y)], fill=(r, g, b))
+    img  = Image.new("RGB", (W, H), (r1, g1, b1))
+    draw = ImageDraw.Draw(img)
 
-    # Geometric shape based on personality
+    # Radial gradient background
+    for rad in range(230, 0, -5):
+        a  = (230 - rad) / 230
+        rc = min(255, int(r1 + (255-r1)*a*0.18))
+        gc = min(255, int(g1 + (255-g1)*a*0.18))
+        bc = min(255, int(b1 + (255-b1)*a*0.18))
+        draw.ellipse([W//2-rad, H//2-rad, W//2+rad, H//2+rad], fill=(rc, gc, bc))
+
     if personality == "minimalist":
-        draw.rectangle([180, 160, 320, 300], outline=c2, width=3)
-        draw.line([180, 230, 320, 230], fill=c2, width=2)
+        draw.rectangle([148, 148, 312, 312], outline=(r2,g2,b2), width=5)
+        draw.rectangle([200, 200, 364, 364], outline=(r2,g2,b2), width=5)
+        draw.line([148, 256, 364, 256], fill=(r2,g2,b2), width=2)
     elif personality == "vibrant":
-        for i, angle in enumerate(range(0, 360, 60)):
-            x = W//2 + 80 * np.cos(np.radians(angle))
-            y = H//2 + 80 * np.sin(np.radians(angle))
-            draw.ellipse([x-15, y-15, x+15, y+15], fill=palette[i % len(palette)])
+        cx, cy = W//2, H//2
+        for i, ang in enumerate(range(0, 360, 45)):
+            rad2 = math.radians(ang)
+            x2 = cx + 168*math.cos(rad2)
+            y2 = cy + 168*math.sin(rad2)
+            cr, cg, cb = h2r(palette[i % len(palette)])
+            draw.line([cx, cy, x2, y2], fill=(cr,cg,cb), width=22)
+        draw.ellipse([cx-58, cy-58, cx+58, cy+58], fill=(r1,g1,b1))
+        draw.ellipse([cx-42, cy-42, cx+42, cy+42], fill=(r2,g2,b2))
     elif personality == "luxury":
-        draw.polygon([(250, 140), (330, 260), (170, 260)], outline=c2, fill=None, width=3)
-        draw.polygon([(250, 360), (330, 240), (170, 240)], outline=c3, fill=None, width=2)
+        pts   = [(W//2,118),(392,H//2),(W//2,392),(118,H//2)]
+        inner = [(W//2,172),(338,H//2),(W//2,338),(172,H//2)]
+        draw.polygon(pts, outline=(r2,g2,b2), width=4)
+        draw.polygon(inner, outline=(r2,g2,b2), width=2)
+        for px, py in pts:
+            draw.ellipse([px-7, py-7, px+7, py+7], fill=(r2,g2,b2))
     elif personality == "bold":
-        draw.rectangle([130, 180, 370, 320], fill=c2)
-        draw.rectangle([160, 195, 340, 305], fill=c1)
+        draw.polygon([(118,118),(292,118),(392,392),(218,392)], fill=(r2,g2,b2))
+        draw.polygon([(242,118),(392,118),(392,242)], fill=(r3,g3,b3))
+        draw.polygon([(118,278),(118,392),(242,392)], fill=(r3,g3,b3))
     else:  # elegant
-        draw.ellipse([160, 160, 340, 340], outline=c2, width=3)
-        draw.ellipse([185, 185, 315, 315], outline=c2, width=1)
-        draw.line([250, 160, 250, 340], fill=c2, width=2)
+        cx, cy = W//2, H//2
+        draw.ellipse([cx-118, cy-82, cx+28, cy+82], outline=(r2,g2,b2), width=4)
+        draw.ellipse([cx-28,  cy-82, cx+118,cy+82], outline=(r2,g2,b2), width=4)
+        draw.ellipse([cx-40,  cy-40, cx+40, cy+40], fill=(r2,g2,b2))
 
-    # Company initials
-    initials = "".join([w[0].upper() for w in company.split()[:2]]) if company else "BS"
+    # Initials with drop shadow
+    initials = "".join([w[0].upper() for w in company.split()[:2]]) if company else "AI"
     try:
-        font_large = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 64)
-        font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 18)
+        font_large = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 72)
+        font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 19)
     except:
         font_large = ImageFont.load_default()
         font_small = ImageFont.load_default()
 
     bbox = draw.textbbox((0, 0), initials, font=font_large)
-    tw = bbox[2] - bbox[0]
-    th = bbox[3] - bbox[1]
-    draw.text((W//2 - tw//2, H//2 - th//2), initials, fill=c3, font=font_large)
+    tw   = bbox[2] - bbox[0]
+    th   = bbox[3] - bbox[1]
+    tx, ty = W//2 - tw//2, H//2 - th//2
+    draw.text((tx+3, ty+3), initials, fill=(0,0,0),     font=font_large)  # shadow
+    draw.text((tx,   ty),   initials, fill=(r3,g3,b3),  font=font_large)  # text
 
-    # Company name at bottom
-    name_upper = company.upper()[:20] if company else "BRANDSPHERE"
+    name_upper = company.upper()[:18] if company else "BRANDSPHERE"
     bbox2 = draw.textbbox((0, 0), name_upper, font=font_small)
-    tw2 = bbox2[2] - bbox2[0]
-    draw.text((W//2 - tw2//2, 390), name_upper, fill=c2, font=font_small)
+    tw2   = bbox2[2] - bbox2[0]
+    draw.line([W//2-125, 408, W//2+125, 408], fill=(r2,g2,b2), width=1)
+    draw.text((W//2 - tw2//2, 415), name_upper, fill=(r2,g2,b2), font=font_small)
 
-    # Decorative line
-    draw.line([100, 375, 400, 375], fill=c2, width=1)
-
+    img = img.filter(ImageFilter.SMOOTH)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     return buf.getvalue()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  COLOR PALETTE GENERATOR
