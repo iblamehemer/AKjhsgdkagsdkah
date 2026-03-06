@@ -554,51 +554,69 @@ def get_top5_logos(personality: str, industry: str):
 
 
 def generate_logo(company: str, industry: str, personality: str, palette: list) -> bytes:
-    """Returns best CNN-matched logo or Pillow fallback."""
-    import math
-    from PIL import ImageFilter
+    """Generate a clean initials logo using brand color palette."""
+    W = H = 512
 
-    results = get_top5_logos(personality, industry)
-    if results:
-        img_array = results[0][0]
-        img_uint8 = (img_array * 255).astype(np.uint8)
-        pil_img   = Image.fromarray(img_uint8).resize((512, 512), Image.LANCZOS)
-        buf = io.BytesIO()
-        pil_img.save(buf, format="PNG")
-        return buf.getvalue()
-
-    # Pillow fallback
     def h2r(h):
         h = h.lstrip('#')
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
-    W = H = 512
-    c1=palette[0] if palette else "#1B3A6B"
-    c2=palette[1] if len(palette)>1 else "#C9A84C"
-    c3=palette[3] if len(palette)>3 else "#FFFFFF"
-    r1,g1,b1=h2r(c1); r2,g2,b2=h2r(c2); r3,g3,b3=h2r(c3)
-    img=Image.new("RGB",(W,H),(r1,g1,b1)); draw=ImageDraw.Draw(img)
-    for rad in range(230,0,-4):
-        a=(230-rad)/230
-        draw.ellipse([W//2-rad,H//2-rad,W//2+rad,H//2+rad],
-                     fill=(min(255,int(r1+(255-r1)*a*0.2)),
-                           min(255,int(g1+(255-g1)*a*0.2)),
-                           min(255,int(b1+(255-b1)*a*0.2))))
-    initials="".join([w[0].upper() for w in company.split()[:2]]) if company else "AI"
+
+    c1 = palette[0] if palette else "#1B3A6B"
+    c2 = palette[1] if len(palette) > 1 else "#C9A84C"
+    c3 = palette[4] if len(palette) > 4 else "#FFFFFF"
+    r1,g1,b1 = h2r(c1)
+    r2,g2,b2 = h2r(c2)
+    r3,g3,b3 = h2r(c3)
+
+    img = Image.new("RGB", (W, H), (r1,g1,b1))
+    draw = ImageDraw.Draw(img)
+
+    # Subtle radial gradient background
+    for rad in range(280, 0, -2):
+        a = (280 - rad) / 280 * 0.18
+        col = (min(255, int(r1 + (255-r1)*a)),
+               min(255, int(g1 + (255-g1)*a)),
+               min(255, int(b1 + (255-b1)*a)))
+        draw.ellipse([W//2-rad, H//2-rad, W//2+rad, H//2+rad], fill=col)
+
+    # Outer ring
+    draw.ellipse([W//2-195, H//2-195, W//2+195, H//2+195],
+                 outline=(r2,g2,b2), width=3)
+    # Inner thin ring
+    draw.ellipse([W//2-175, H//2-175, W//2+175, H//2+175],
+                 outline=(r2,g2,b2), width=1)
+
+    # Get initials (up to 2 chars)
+    words = [w for w in company.split() if w]
+    if len(words) >= 2:
+        initials = words[0][0].upper() + words[1][0].upper()
+    elif words:
+        initials = words[0][:2].upper()
+    else:
+        initials = "AI"
+
     try:
-        fl=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",120)
-        fs=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",19)
+        font_big  = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 160)
+        font_name = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 22)
     except:
-        fl=fs=ImageFont.load_default()
-    bb=draw.textbbox((0,0),initials,font=fl)
-    tx,ty=W//2-(bb[2]-bb[0])//2,H//2-(bb[3]-bb[1])//2
-    draw.text((tx+4,ty+4),initials,fill=(0,0,0),font=fl)
-    draw.text((tx,ty),initials,fill=(r3,g3,b3),font=fl)
-    name=company.upper()[:18] if company else "BRANDSPHERE"
-    bb2=draw.textbbox((0,0),name,font=fs)
-    draw.line([W//2-125,408,W//2+125,408],fill=(r2,g2,b2),width=1)
-    draw.text((W//2-(bb2[2]-bb2[0])//2,415),name,fill=(r2,g2,b2),font=fs)
-    img=img.filter(ImageFilter.SMOOTH)
-    buf=io.BytesIO(); img.save(buf,format="PNG"); return buf.getvalue()
+        font_big = font_name = ImageFont.load_default()
+
+    # Shadow + initials
+    bb = draw.textbbox((0,0), initials, font=font_big)
+    tw = bb[2]-bb[0]; th = bb[3]-bb[1]
+    tx = W//2 - tw//2; ty = H//2 - th//2 - 18
+    draw.text((tx+5, ty+5), initials, fill=(0,0,0), font=font_big)
+    draw.text((tx, ty), initials, fill=(r3,g3,b3), font=font_big)
+
+    # Accent line + company name
+    draw.line([W//2-90, H//2+95, W//2+90, H//2+95], fill=(r2,g2,b2), width=2)
+    name = company.upper()[:20] if company else "BRANDSPHERE"
+    bb2 = draw.textbbox((0,0), name, font=font_name)
+    draw.text((W//2-(bb2[2]-bb2[0])//2, H//2+105), name, fill=(r2,g2,b2), font=font_name)
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
